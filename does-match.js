@@ -17,12 +17,16 @@ var replaceDiacritics = function(c) {
   return c;
 };
 
-var validateQuery = function(query) {
-
+var validateText = function(text) {
+  if (typeof text !== 'string') {
+    throw new Error('`text` should be string');
+  }
 };
 
-var validateText = function(text) {
-
+var validateQuery = function(query) {
+  if (typeof query !== 'string') {
+    throw new Error('`query` should be string');
+  }
 };
 
 /*
