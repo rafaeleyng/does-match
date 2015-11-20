@@ -7,17 +7,9 @@ p {
   text-align: center;
 }
 
-li {
-  padding: 10px;
-  margin: 0;
-  border: 1px solid #eee;
-  position: relative;
-  top: -1px;
-  border-top: 0px;
-}
-
-li:first-child {
-  border-top: 1px solid #eee;
+.links {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .song-author {
