@@ -5,6 +5,22 @@
   <title>Document</title>
 </head>
 <body>
+  <input type="text" data-bind="textInput: search" autofocus>
+  <ul data-bind="foreach: songs">
+    <li>
+      <span data-bind="text: title"></span>
+      <!-- ko if: typeof relevance !== "undefined" -->
+        <span data-bind="text: relevance"></span>
+      <!-- /ko -->
+    </li>
+  </ul>
   <script src="./src/does-match.js"></script>
+  <script src="./demo/js/knockout-3.4.0.js"></script>
+  <script src="./demo/js/app.js"></script>
+  <script>
+    window.onload = function () {
+      ko.applyBindings(new AppViewModel());
+    };
+  </script>
 </body>
 </html>
