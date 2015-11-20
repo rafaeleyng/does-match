@@ -1,10 +1,10 @@
 var songsService = {
   getSongs: function() {
     return [
-      {title: 'Somebody To Love'},
-      {title: 'To Love Somebody'},
-      {title: 'One Way Road'},
-      {title: 'All You Need Is Love'}
+      {title: 'Somebody To Love', author: 'Queen'},
+      {title: 'To Love Somebody', author: 'Bee Gees'},
+      {title: 'One Way Road', author: 'John Buttle Trio'},
+      {title: 'All You Need Is Love', author: 'The Beatles'}
     ];
   }
 };
@@ -13,7 +13,8 @@ var AppViewModel = function() {
 
   this.filterSongs = function() {
     var search = this.search();
-    var result;
+    var result, showSearch;
+
     if (search) {
       this.songsData.forEach(function(song) {
         song.relevance = doesMatch(song.title, search);
@@ -27,10 +28,11 @@ var AppViewModel = function() {
       });
     } else {
       this.songsData.forEach(function(song) {
-        delete song.relevance;
+        song.relevance = undefined;
       });
       result = this.songsData;
     }
+
     this.songs.removeAll();
     ko.utils.arrayPushAll(this.songs, result);
   };

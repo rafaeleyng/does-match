@@ -1,7 +1,25 @@
-.search-input {
-  width: 100%;
+.container {
+  margin-top: 100px;
 }
 
-.list-header {
-  width: 100%;
+li {
+  padding: 10px;
+  margin: 0;
+  border: 1px solid #eee;
+  position: relative;
+  top: -1px;
+  border-top: 0px;
+}
+
+li:first-child {
+  border-top: 1px solid #eee;
+}
+
+.song-author {
+  color: #aaa;
+  margin-left: 5px;
+}
+
+.column-title {
+  width: 80%;
 }
