@@ -14,14 +14,14 @@ var AppViewModel = function() {
     var search = this.search();
     var result;
     if (search) {
-      ko.utils.arrayForEach(this.songsData, function(song) {
+      this.songsData.forEach(function(song) {
         song.relevance = doesMatch(song.title, search);
       });
-      result = ko.utils.arrayFilter(this.songsData, function(song) {
+      result = this.songsData.filter(function(song) {
         return song.relevance > 0;
       });
     } else {
-      ko.utils.arrayForEach(this.songsData, function(song) {
+      this.songsData.forEach(function(song) {
         delete song.relevance;
       });
       result = this.songsData;
