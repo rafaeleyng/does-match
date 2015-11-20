@@ -45,6 +45,8 @@ var AppViewModel = function() {
     this.songsData = songsService.getSongs();
     this.songs = ko.observableArray();
     this.filterSongs();
+
+    this.showSongs = ko.observable(true);
   };
 
   this.init();

@@ -2,6 +2,11 @@
   margin-top: 100px;
 }
 
+h1,
+p {
+  text-align: center;
+}
+
 li {
   padding: 10px;
   margin: 0;
