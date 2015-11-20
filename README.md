@@ -3,7 +3,7 @@ DoesMatch
 
 A small lib for matching text searches by relevance.
 
-[Live demo](https://github.com/rafaeleyng/does-match).
+[Live demo](http://rafaeleyng.github.io/does-match/).
 
 ## Installation
 
