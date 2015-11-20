@@ -2,9 +2,9 @@
   "name": "does-match",
   "version": "0.1.0",
   "description": "A small lib for matching text searches by relevance",
-  "main": "does-match.js",
+  "main": "src/does-match.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/does-match-test.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/rafaeleyng/does-match/issues"
   },
-  "homepage": "https://github.com/rafaeleyng/does-match#readme"
+  "homepage": "https://github.com/rafaeleyng/does-match#readme",
+  "devDependencies": {
+    "chai": "3.4.1",
+    "mocha": "2.3.4"
+  }
 }
