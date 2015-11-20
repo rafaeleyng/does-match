@@ -3,7 +3,8 @@ var songsService = {
     return [
       {title: 'Somebody To Love'},
       {title: 'To Love Somebody'},
-      {title: 'One Way Road'}
+      {title: 'One Way Road'},
+      {title: 'All You Need Is Love'}
     ];
   }
 };
@@ -19,6 +20,10 @@ var AppViewModel = function() {
       });
       result = this.songsData.filter(function(song) {
         return song.relevance > 0;
+      })
+
+      result = result.sort(function(s1, s2) {
+        return s1.relevance < s2.relevance;
       });
     } else {
       this.songsData.forEach(function(song) {

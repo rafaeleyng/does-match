@@ -2,25 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Document</title>
+  <title>DoesMatch</title>
+  <link rel="stylesheet" href="./demo/css/normalize.css">
+  <link rel="stylesheet" href="./demo/css/skeleton.css">
+  <link rel="stylesheet" href="./demo/css/app.css">
 </head>
 <body>
-  <input type="text" data-bind="textInput: search" autofocus>
-  <ul data-bind="foreach: songs">
-    <li>
-      <span data-bind="text: title"></span>
-      <!-- ko if: typeof relevance !== "undefined" -->
-        <span data-bind="text: relevance"></span>
-      <!-- /ko -->
-    </li>
-  </ul>
+  <div class="container">
+    <div class="row">
+      <div class="offset-by-four four columns">
+        <input type="text" data-bind="textInput: search" autofocus class="search-input">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="offset-by-four four columns">
+        <div data-bind="if: search()" class="u-cf list-header">
+          <div class="u-pull-left">Search</div>
+          <div class="u-pull-right">Relevance</div>
+        </div>
+        <div data-bind="if: !search()" class="list-header">
+          <div>Song</div>
+        </div>
+        <div>
+          <ul data-bind="foreach: songs">
+            <li>
+              <span data-bind="text: title"></span>
+              <!-- ko if: typeof relevance !== "undefined" -->
+              <span data-bind="text: relevance" class="u-pull-right"></span>
+              <!-- /ko -->
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="./src/does-match.js"></script>
   <script src="./demo/js/knockout-3.4.0.js"></script>
   <script src="./demo/js/app.js"></script>
   <script>
-    window.onload = function () {
-      ko.applyBindings(new AppViewModel());
-    };
+  window.onload = function () {
+    ko.applyBindings(new AppViewModel());
+  };
   </script>
 </body>
 </html>
