@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-var doesMatch = require('../../src/does-match.js');
+var doesMatch = require('../../src/does-match');
 
 describe('lookahead match', function() {
   var text = 'The Curious Case of Benjamin Button';

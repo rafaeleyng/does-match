@@ -31,15 +31,31 @@
     return c;
   };
 
+  /*
+    options
+  */
   var validateText = function(text) {
     if (typeof text !== 'string') {
-      throw new Error('`text` should be string');
+      throw new Error('`text`: expected string');
     }
   };
 
   var validateQuery = function(query) {
     if (typeof query !== 'string') {
-      throw new Error('`query` should be string');
+      throw new Error('`query`: expected string');
+    }
+  };
+
+  var validateOptions = function(options) {
+    var minWord = options.minWord;
+    if (minWord !== undefined && typeof minWord !== 'number') {
+      throw new Error('`minWord`: expected number');
+    } else if (minWord < 1 || minWord > 10) {
+      throw new Error('`minWord`: expected number between 1 and 10');
+    }
+
+    if (options.ignoreDiacritics !== undefined && typeof options.ignoreDiacritics !== 'boolean') {
+      throw new Error('`ignoreDiacritics`: expected boolean');
     }
   };
 
@@ -57,9 +73,9 @@
     return 0;
   };
 
-  var matchWords = function(text, query) {
+  var matchWords = function(text, query, options) {
     var queryWords = query.split(' ').filter(function(word) {
-      return word.length > 3; // only account for words bigger than 3
+      return word.length > options.minWord;
     });
     return queryWords.reduce(function(acc, word) {
       var didMatch = text.indexOf(word)>-1;
@@ -97,10 +113,17 @@
   /*
     api
   */
-  var doesMatch = function(text, query) {
+  var doesMatch = function(text, query, options) {
+    options = options || {};
+
     // validate
     validateText(text);
     validateQuery(query);
+    validateOptions(options);
+
+    // defaults
+    options.minWord = options.minWord || 3;
+    options.ignoreDiacritics = options.ignoreDiacritics || true;
 
     // arrange
     text = text.toLowerCase();
@@ -108,12 +131,12 @@
 
     // matches
     // whole match
-    var wholeMatch = matchWhole(text, query)
+    var wholeMatch = matchWhole(text, query);
     if (wholeMatch) {
       return wholeMatch;
     }
     // words match
-    var wordsMatch = matchWords(text, query)
+    var wordsMatch = matchWords(text, query, options);
     if (wordsMatch) {
       return wordsMatch;
     }

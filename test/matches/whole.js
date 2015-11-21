@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-var doesMatch = require('../../src/does-match.js');
+var doesMatch = require('../../src/does-match');
 
 var text = 'this is the original text';
 

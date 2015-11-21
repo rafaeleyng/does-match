@@ -1,9 +1,9 @@
 var expect = require('chai').expect;
-var doesMatch = require('../../src/does-match.js');
+var doesMatch = require('../../src/does-match');
 
 var text = 'this is the original text';
 
-describe('word match', function() {
+describe('words match', function() {
   it('should match query words when all match, with relevance of all `matchedWord.length * 2`', function() {
     var match = function(query) {
       var wordsLength = query.split(' ').reduce(function(acc, word) {
