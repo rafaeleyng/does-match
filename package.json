@@ -4,7 +4,7 @@
   "description": "A small lib for matching text searches by relevance",
   "main": "src/does-match.js",
   "scripts": {
-    "test": "mocha test/does-match-test.js",
+    "test": "mocha test/index.js",
     "gh": "git add -A; if [ $(git status -s | wc -l) -gt 0 ]; then git commit -m \"$MSG\" && git push origin master && git checkout gh-pages && git rebase master && git push origin gh-pages && git checkout master; else echo \"Nothing to commit\"; fi;"
   },
   "repository": {
