@@ -39,7 +39,7 @@ var AppViewModel = function() {
 
   this.init = function() {
     // search
-    this.search = ko.observable();
+    this.search = ko.observable('love ');
     this.search.subscribe(this.filterSongs.bind(this));
     // songs
     this.songsData = songsService.getSongs();
