@@ -1,9 +1,9 @@
 var expect = require('chai').expect;
 var doesMatch = require('../../src/does-match');
 
-var text = 'this is the original text';
-
 describe('whole match', function() {
+  var text = 'this is the original text';
+
   it('should match whole query, with relevance of `query.length * 4`', function() {
     var match = function(query) {
       expect(doesMatch(text, query)).to.equal(query.length * 4);

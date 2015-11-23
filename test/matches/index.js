@@ -3,4 +3,5 @@ describe('matches', function() {
   require('./words');
   require('./lookahead');
   require('./diacritics');
+  require('./minWord');
 });
