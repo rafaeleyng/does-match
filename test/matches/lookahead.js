@@ -15,4 +15,8 @@ describe('lookahead match', function() {
   it('shouldn\'t be relevant if there\'s no adjacents matched chars', function() {
     expect(doesMatch(text, 'cr cs bnmn btn')).to.equal(0);
   });
+
+  it('should return the best match between words match and lookahead match', function() {
+    expect(doesMatch(text, 'crious cse bnjamin button')).to.equal(15);
+  });
 });

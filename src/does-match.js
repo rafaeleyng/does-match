@@ -21,13 +21,13 @@
   };
 
   var replaceDiacritics = function(c) {
-    'àáãâ'.indexOf(c)>-1 && (c = 'a');
-     'èéê'.indexOf(c)>-1 && (c = 'e');
-     'ìíî'.indexOf(c)>-1 && (c = 'i');
-     'òóô'.indexOf(c)>-1 && (c = 'o');
-     'ùúû'.indexOf(c)>-1 && (c = 'u');
-       'ç'.indexOf(c)>-1 && (c = 'c');
-       'ñ'.indexOf(c)>-1 && (c = 'n');
+    if ('àáãâ'.indexOf(c)>-1) return 'a';
+    if ('èéê'.indexOf(c)>-1) return 'e';
+    if ('ìíî'.indexOf(c)>-1) return 'i';
+    if ('òóô'.indexOf(c)>-1) return 'o';
+    if ('ùúû'.indexOf(c)>-1) return 'u';
+    if ('ç'.indexOf(c)>-1) return 'c';
+    if ('ñ'.indexOf(c)>-1) return 'n';
     return c;
   };
 
@@ -150,17 +150,12 @@
     if (wholeMatch) {
       return wholeMatch;
     }
-    // words match
+    // words match or lookahead match
     var wordsMatch = match.words(text, query, options);
-    if (wordsMatch) {
-      return wordsMatch;
-    }
-    // lookahead match
     var lookaheadMatch = match.lookahead(text, query, options);
-    if (lookaheadMatch) {
-      return lookaheadMatch;
+    if (wordsMatch || lookaheadMatch) {
+      return Math.max(wordsMatch, lookaheadMatch);
     }
-
     return 0;
   };
 
