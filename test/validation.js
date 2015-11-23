@@ -29,8 +29,8 @@ describe('validation', function() {
       expect(doesMatch.bind(doesMatch, 'some', 'string', {minWord: 'invalid'})).to.throw('`minWord`: expected number');
     });
 
-    it('should throw if `ignoreDiacritics` option is not a boolean', function() {
-      expect(doesMatch.bind(doesMatch, 'some', 'string', {ignoreDiacritics: 'invalid'})).to.throw('`ignoreDiacritics`: expected boolean');
+    it('should throw if `replaceDiacritics` option is not a boolean', function() {
+      expect(doesMatch.bind(doesMatch, 'some', 'string', {replaceDiacritics: 'invalid'})).to.throw('`replaceDiacritics`: expected boolean');
     });
   });
 });

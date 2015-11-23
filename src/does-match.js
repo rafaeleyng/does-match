@@ -33,7 +33,7 @@
 
   var prepareString = function(string, options) {
     string = string.toLowerCase();
-    if (!options.ignoreDiacritics) {
+    if (!options.replaceDiacritics) {
       return string;
     }
 
@@ -66,8 +66,8 @@
       } else if (minWord < 1 || minWord > 10) {
         throw new Error('`minWord`: expected number between 1 and 10');
       }
-      if (options.ignoreDiacritics !== undefined && typeof options.ignoreDiacritics !== 'boolean') {
-        throw new Error('`ignoreDiacritics`: expected boolean');
+      if (options.replaceDiacritics !== undefined && typeof options.replaceDiacritics !== 'boolean') {
+        throw new Error('`replaceDiacritics`: expected boolean');
       }
     }
   };
@@ -137,8 +137,8 @@
     validate.options(options);
 
     // defaults
-    options.minWord = options.minWord || 3;
-    options.ignoreDiacritics = options.ignoreDiacritics || true;
+    options.minWord = options.minWord !== undefined ? options.minWord : 3;
+    options.replaceDiacritics = options.replaceDiacritics !== undefined ? options.replaceDiacritics : true;
 
     // arrange
     text = prepareString(text, options);
