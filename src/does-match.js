@@ -76,10 +76,6 @@
     match
   */
   var match = {
-    chars: function(charWord, charQuery) {
-      return charWord === charQuery;
-    },
-
     whole: function(text, query, options) {
       if (text.indexOf(query)>-1) {
         return query.length * MULTIPLIERS.MATCH_WHOLE;
