@@ -1,6 +1,6 @@
 {
   "name": "does-match",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A small lib for matching text searches by relevance",
   "main": "src/does-match.js",
   "scripts": {
