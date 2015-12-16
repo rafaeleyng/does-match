@@ -38,7 +38,7 @@
     }
 
     var replaced = '';
-    for (var i in string) {
+    for (var i = 0, size = string.length; i < size; i++) {
       replaced += replaceDiacritics(string[i]);
     }
 
@@ -97,11 +97,11 @@
       query = query.replace(/ /g, '');
 
       var relevance = 0;
-      for (var i in query) {
+      for (var i = 0, querySize = query.length; i < querySize; i++) {
         var charQuery = query[i];
         var didFindChar = false;
         var isAdjacent = true;
-        for (var j in text) {
+        for (var j = 0, textSize = text.length; j < textSize; j++) {
           var charText = text[j];
           if (charQuery === charText) {
             didFindChar = true;
