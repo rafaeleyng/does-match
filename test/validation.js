@@ -2,13 +2,13 @@ var expect = require('chai').expect;
 var doesMatch = require('../src/does-match');
 
 describe('validation', function() {
-  it('should throw if first param (``) is not a string', function() {
+  it('should throw if first param (`text`) is not a string', function() {
     expect(doesMatch.bind(doesMatch)).to.throw('`text`: expected string');
     expect(doesMatch.bind(doesMatch, null)).to.throw('`text`: expected string');
     expect(doesMatch.bind(doesMatch, 0, 'a string')).to.throw('`text`: expected string');
   });
 
-  it('should throw if second param is not a string', function() {
+  it('should throw if second param (`query`) is not a string', function() {
     expect(doesMatch.bind(doesMatch, 'a string')).to.throw('`query`: expected string');
     expect(doesMatch.bind(doesMatch, 'a string', null)).to.throw('`query`: expected string');
     expect(doesMatch.bind(doesMatch, 'a string', 0)).to.throw('`query`: expected string');
