@@ -5,6 +5,7 @@
   "main": "src/does-match.js",
   "scripts": {
     "test": "mocha test/index.js",
+    "tw": "mocha test/index.js -w",
     "gh": "git add -A; if [ $(git status -s | wc -l) -gt 0 ]; then git commit -m \"$MSG\" && git push origin master && git checkout gh-pages && git rebase master && git push origin gh-pages && git checkout master; else echo \"Nothing to commit\"; fi;"
   },
   "repository": {

@@ -75,7 +75,22 @@
   /*
     match
   */
-  var match = {
+  var bestMatch = function(text, query, options) {
+    // whole match
+    var wholeMatch = matches.whole(text, query, options);
+    if (wholeMatch) {
+      return wholeMatch;
+    }
+    // words match or lookahead match
+    var wordsMatch = matches.words(text, query, options);
+    var lookaheadMatch = matches.lookahead(text, query, options);
+    if (wordsMatch || lookaheadMatch) {
+      return Math.max(wordsMatch, lookaheadMatch);
+    }
+    return 0;
+  };
+
+  var matches = {
     whole: function(text, query, options) {
       if (text.indexOf(query)>-1) {
         return query.length * MULTIPLIERS.MATCH_WHOLE;
@@ -140,19 +155,7 @@
     text = prepareString(text, options);
     query = prepareString(query, options);
 
-    // matches
-    // whole match
-    var wholeMatch = match.whole(text, query, options);
-    if (wholeMatch) {
-      return wholeMatch;
-    }
-    // words match or lookahead match
-    var wordsMatch = match.words(text, query, options);
-    var lookaheadMatch = match.lookahead(text, query, options);
-    if (wordsMatch || lookaheadMatch) {
-      return Math.max(wordsMatch, lookaheadMatch);
-    }
-    return 0;
+    return bestMatch(text, query, options);
   };
 
   return doesMatch;
