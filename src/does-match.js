@@ -48,12 +48,12 @@
   var validation = function() {
     var proto = {
       text: function(text) {
-        if (isString(text)) {
+        if (!isString(text)) {
           throw new Error('`text`: expected string');
         }
       },
       query: function(query) {
-        if (isString(query)) {
+        if (!isString(query)) {
           throw new Error('`query`: expected string');
         }
       },
@@ -71,7 +71,7 @@
     };
 
     function isString(src) {
-      return typeof src !== 'string'
+      return typeof src === 'string'
     }
 
     return Object.create(proto);
