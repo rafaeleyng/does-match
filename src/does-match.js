@@ -37,92 +37,102 @@
       return string;
     }
 
-    var replaced = '';
-    for (var i in string) {
-      replaced += replaceDiacritics(string[i]);
-    }
+    var replaced = string.split('').map(replaceDiacritics);
 
-    return replaced;
+    return replaced.join('');
   };
 
   /*
     options
   */
-  var validate = {
-    text: function(text) {
-      if (typeof text !== 'string') {
-        throw new Error('`text`: expected string');
+  var validation = function() {
+    var proto = {
+      text: function(text) {
+        if (isString(text)) {
+          throw new Error('`text`: expected string');
+        }
+      },
+      query: function(query) {
+        if (isString(query)) {
+          throw new Error('`query`: expected string');
+        }
+      },
+      options: function(options) {
+        var minWord = options.minWord;
+        if (minWord !== undefined && typeof minWord !== 'number') {
+          throw new Error('`minWord`: expected number');
+        } else if (minWord < 1 || minWord > 10) {
+          throw new Error('`minWord`: expected number between 1 and 10');
+        }
+        if (options.replaceDiacritics !== undefined && typeof options.replaceDiacritics !== 'boolean') {
+          throw new Error('`replaceDiacritics`: expected boolean');
+        }
       }
-    },
-    query: function(query) {
-      if (typeof query !== 'string') {
-        throw new Error('`query`: expected string');
-      }
-    },
-    options: function(options) {
-      var minWord = options.minWord;
-      if (minWord !== undefined && typeof minWord !== 'number') {
-        throw new Error('`minWord`: expected number');
-      } else if (minWord < 1 || minWord > 10) {
-        throw new Error('`minWord`: expected number between 1 and 10');
-      }
-      if (options.replaceDiacritics !== undefined && typeof options.replaceDiacritics !== 'boolean') {
-        throw new Error('`replaceDiacritics`: expected boolean');
-      }
+    };
+
+    function isString(src) {
+      return typeof src !== 'string'
     }
+
+    return Object.create(proto);
   };
 
   /*
     match
   */
-  var match = {
-    chars: function(charWord, charQuery) {
-      return charWord === charQuery;
-    },
+  var matching = function() {
+    var proto = {
+      chars: function(charWord, charQuery) {
+        return charWord === charQuery;
+      },
 
-    whole: function(text, query, options) {
-      if (text.indexOf(query)>-1) {
-        return query.length * MULTIPLIERS.MATCH_WHOLE;
-      }
-      return 0;
-    },
+      whole: function(text, query, options) {
+        if (text.indexOf(query)>-1) {
+          return query.length * MULTIPLIERS.MATCH_WHOLE;
+        }
+        return 0;
+      },
 
-    words: function(text, query, options) {
-      var queryWords = query.split(' ').filter(function(word) {
-        return word.length > options.minWord;
-      });
-      return queryWords.reduce(function(acc, word) {
-        var didMatch = text.indexOf(word)>-1;
-        return acc + (didMatch ? word.length * MULTIPLIERS.MATCH_WORD : 0);
-      }, 0);
-    },
+      words: function(text, query, options) {
+        var queryWords = query.split(' ').filter(function(word) {
+          return word.length > options.minWord;
+        });
 
-    lookahead: function(text, query, options) {
-      query = query.replace(/ /g, '');
+        return queryWords.reduce(function(acc, word) {
+          var didMatch = text.indexOf(word)>-1;
+          return acc + (didMatch ? word.length * MULTIPLIERS.MATCH_WORD : 0);
+        }, 0);
+      },
 
-      var relevance = 0;
-      for (var i in query) {
-        var charQuery = query[i];
-        var didFindChar = false;
-        var isAdjacent = true;
-        for (var j in text) {
-          var charText = text[j];
-          if (charQuery === charText) {
-            didFindChar = true;
-            break;
+      lookahead: function(text, query, options) {
+        var relevance = 0;
+
+        query = clearWhitespaces(query);
+        query.split('').forEach(function(charQuery) {
+          var j = text.indexOf(charQuery);
+          var didFindChar = j > -1;
+          var isAdjacent = j === 0;
+
+          if (isAdjacent) {
+            relevance++;
           }
-          isAdjacent = false;
-        }
-        if (isAdjacent) {
-          relevance++;
-        }
-        if (!didFindChar) {
-          return 0;
-        }
-        text = text.substring(parseInt(j) + 1); // on next iteration, will look in the text hereinafter
+
+          if (!didFindChar) {
+            return 0;
+          }
+          // on next iteration, will look in the text hereinafter
+          text = text.substring(parseInt(j) + 1);
+        });
+
+        return relevance;
       }
-      return relevance;
+    };
+
+    function clearWhitespaces(str) {
+      return str.replace(/ /g, '');
     }
+
+    return Object.create(proto);
   };
 
   /*
@@ -132,6 +142,10 @@
     options = options || {};
 
     // validate
+    var validate = validation();
+    // matching
+    var match = matching();
+
     validate.text(text);
     validate.query(query);
     validate.options(options);
