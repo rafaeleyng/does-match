@@ -15,14 +15,14 @@ npm install does-match
 
 ### CommonsJS
 
-```
+```javascript
 var doesMatch = require('does-match');
 doesMatch(text, query);
 ```
 
 ### Browser global
 
-```
+```javascript
 doesMatch(text, query);
 ```
 
@@ -30,7 +30,7 @@ doesMatch(text, query);
 
 Matching songs names to match a search and order by relevance:
 
-```
+```javascript
 var doesMatch = require('does-match');
 var search = 'somebody to love';
 

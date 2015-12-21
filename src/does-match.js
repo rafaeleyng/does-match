@@ -135,6 +135,25 @@
     return Object.create(proto);
   };
 
+  var bestMatch = function(text, query, options) {
+    // matching
+    var matches = matching();
+
+    // whole match
+    var wholeMatch = matches.whole(text, query, options);
+    if (wholeMatch) {
+      return wholeMatch;
+    }
+    // words match or lookahead match
+    var wordsMatch = matches.words(text, query, options);
+    var lookaheadMatch = matches.lookahead(text, query, options);
+    if (wordsMatch || lookaheadMatch) {
+      return Math.max(wordsMatch, lookaheadMatch);
+    }
+    return 0;
+  };
+
+
   /*
     api
   */
@@ -143,8 +162,6 @@
 
     // validate
     var validate = validation();
-    // matching
-    var match = matching();
 
     validate.text(text);
     validate.query(query);
@@ -158,19 +175,7 @@
     text = prepareString(text, options);
     query = prepareString(query, options);
 
-    // matches
-    // whole match
-    var wholeMatch = match.whole(text, query, options);
-    if (wholeMatch) {
-      return wholeMatch;
-    }
-    // words match or lookahead match
-    var wordsMatch = match.words(text, query, options);
-    var lookaheadMatch = match.lookahead(text, query, options);
-    if (wordsMatch || lookaheadMatch) {
-      return Math.max(wordsMatch, lookaheadMatch);
-    }
-    return 0;
+    return bestMatch(text, query, options);
   };
 
   return doesMatch;
