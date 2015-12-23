@@ -1,6 +1,8 @@
 DoesMatch
 ---------
 
+[![Build Status](https://travis-ci.org/ehkasper/does-match.svg)](https://travis-ci.org/ehkasper/does-match)
+
 A small lib for matching text searches by relevance.
 
 [Live demo](http://rafaeleyng.github.io/does-match/).
