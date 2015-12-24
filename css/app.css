@@ -1,0 +1,31 @@
+.container {
+  margin-top: 50px;
+}
+
+h1,
+p {
+  text-align: center;
+}
+
+tr {
+  cursor: pointer;
+}
+
+.links {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.song-author {
+  color: #aaa;
+  margin-left: 5px;
+}
+
+.column-title {
+  width: 80%;
+}
+
+.video {
+  text-align: center;
+  margin-bottom: 10px;
+}
