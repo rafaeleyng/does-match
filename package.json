@@ -1,0 +1,12 @@
+{
+  "name": "does-match-demo",
+  "scripts": {
+    "test": "mocha test/index.js",
+    "tw": "mocha test/index.js -w"
+  },
+  "author": "Rafael Eyng <rafaeleyng@gmail.com> (https://github.com/rafaeleyng)",
+  "license": "MIT",
+  "devDependencies": {
+    "does-match": "0.3.1"
+  }
+}
