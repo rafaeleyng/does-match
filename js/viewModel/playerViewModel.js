@@ -1,9 +1,24 @@
 var ko = require('knockout');
 var doesMatch = require('does-match');
 
-var PlayerViewModel = function(songService) {
+class PlayerViewModel {
+  constructor(songService) {
+    this.selectedSong = ko.observable();
+    // search
+    this.search = ko.observable('love some');
+    this.search.subscribe(this.filterSongs.bind(this));
+    // songs
+    this.songsData = songService.getSongs();
+    this.songs = ko.observableArray();
+    this.filterSongs();
 
-  this.filterSongs = function() {
+    this.showSongs = ko.observable(true);
+
+    this.selectSong = (song) => {
+      this.selectedSong(song);
+    }
+  }
+  filterSongs() {
     var search = this.search();
     var result, showSearch;
 
@@ -27,26 +42,7 @@ var PlayerViewModel = function(songService) {
 
     this.songs.removeAll();
     ko.utils.arrayPushAll(this.songs, result);
-  };
-
-  this.selectSong = function(song) {
-    this.selectedSong(song);
-  }.bind(this);
-
-  this.init = function() {
-    this.selectedSong = ko.observable();
-    // search
-    this.search = ko.observable('love some');
-    this.search.subscribe(this.filterSongs.bind(this));
-    // songs
-    this.songsData = songService.getSongs();
-    this.songs = ko.observableArray();
-    this.filterSongs();
-
-    this.showSongs = ko.observable(true);
-  };
-
-  this.init();
+  }
 };
 
 module.exports = PlayerViewModel;

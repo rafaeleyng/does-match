@@ -59,7 +59,7 @@
 	var PlayerViewModel = __webpack_require__(6);
 
 	window.onload = function () {
-	  ko.applyBindings(new PlayerViewModel(songService));
+	  return ko.applyBindings(new PlayerViewModel(songService));
 	};
 
 /***/ },
@@ -5983,42 +5983,19 @@
 
 	'use strict';
 
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 	var ko = __webpack_require__(2);
 	var doesMatch = __webpack_require__(7);
 
-	var PlayerViewModel = function PlayerViewModel(songService) {
+	var PlayerViewModel = (function () {
+	  function PlayerViewModel(songService) {
+	    var _this = this;
 
-	  this.filterSongs = function () {
-	    var search = this.search();
-	    var result, showSearch;
+	    _classCallCheck(this, PlayerViewModel);
 
-	    if (search) {
-	      this.songsData.forEach(function (song) {
-	        song.relevance = doesMatch(song.title, search);
-	      });
-	      result = this.songsData.filter(function (song) {
-	        return song.relevance > 0;
-	      });
-
-	      result = result.sort(function (s1, s2) {
-	        return s1.relevance < s2.relevance;
-	      });
-	    } else {
-	      this.songsData.forEach(function (song) {
-	        song.relevance = undefined;
-	      });
-	      result = this.songsData;
-	    }
-
-	    this.songs.removeAll();
-	    ko.utils.arrayPushAll(this.songs, result);
-	  };
-
-	  this.selectSong = (function (song) {
-	    this.selectedSong(song);
-	  }).bind(this);
-
-	  this.init = function () {
 	    this.selectedSong = ko.observable();
 	    // search
 	    this.search = ko.observable('love some');
@@ -6029,10 +6006,45 @@
 	    this.filterSongs();
 
 	    this.showSongs = ko.observable(true);
-	  };
 
-	  this.init();
-	};
+	    this.selectSong = function (song) {
+	      _this.selectedSong(song);
+	    };
+	  }
+
+	  _createClass(PlayerViewModel, [{
+	    key: 'filterSongs',
+	    value: function filterSongs() {
+	      var search = this.search();
+	      var result, showSearch;
+
+	      if (search) {
+	        this.songsData.forEach(function (song) {
+	          song.relevance = doesMatch(song.title, search);
+	        });
+	        result = this.songsData.filter(function (song) {
+	          return song.relevance > 0;
+	        });
+
+	        result = result.sort(function (s1, s2) {
+	          return s1.relevance < s2.relevance;
+	        });
+	      } else {
+	        this.songsData.forEach(function (song) {
+	          song.relevance = undefined;
+	        });
+	        result = this.songsData;
+	      }
+
+	      this.songs.removeAll();
+	      ko.utils.arrayPushAll(this.songs, result);
+	    }
+	  }]);
+
+	  return PlayerViewModel;
+	})();
+
+	;
 
 	module.exports = PlayerViewModel;
 
@@ -6063,13 +6075,13 @@
 	  };
 
 	  var replaceDiacritics = function(c) {
-	    if ('àáãâ'.indexOf(c)>-1) return 'a';
-	    if ('èéê'.indexOf(c)>-1) return 'e';
-	    if ('ìíî'.indexOf(c)>-1) return 'i';
-	    if ('òóô'.indexOf(c)>-1) return 'o';
-	    if ('ùúû'.indexOf(c)>-1) return 'u';
-	    if ('ç'.indexOf(c)>-1) return 'c';
-	    if ('ñ'.indexOf(c)>-1) return 'n';
+	    'àáãâ'.indexOf(c)>-1 && (c = 'a');
+	     'èéê'.indexOf(c)>-1 && (c = 'e');
+	     'ìíî'.indexOf(c)>-1 && (c = 'i');
+	     'òóô'.indexOf(c)>-1 && (c = 'o');
+	     'ùúû'.indexOf(c)>-1 && (c = 'u');
+	       'ç'.indexOf(c)>-1 && (c = 'c');
+	       'ñ'.indexOf(c)>-1 && (c = 'n');
 	    return c;
 	  };
 
@@ -6080,7 +6092,7 @@
 	    }
 
 	    var replaced = '';
-	    for (var i = 0, size = string.length; i < size; i++) {
+	    for (var i in string) {
 	      replaced += replaceDiacritics(string[i]);
 	    }
 
@@ -6118,6 +6130,10 @@
 	    match
 	  */
 	  var match = {
+	    chars: function(charWord, charQuery) {
+	      return charWord === charQuery;
+	    },
+
 	    whole: function(text, query, options) {
 	      if (text.indexOf(query)>-1) {
 	        return query.length * MULTIPLIERS.MATCH_WHOLE;
@@ -6139,11 +6155,11 @@
 	      query = query.replace(/ /g, '');
 
 	      var relevance = 0;
-	      for (var i = 0, querySize = query.length; i < querySize; i++) {
+	      for (var i in query) {
 	        var charQuery = query[i];
 	        var didFindChar = false;
 	        var isAdjacent = true;
-	        for (var j = 0, textSize = text.length; j < textSize; j++) {
+	        for (var j in text) {
 	          var charText = text[j];
 	          if (charQuery === charText) {
 	            didFindChar = true;
@@ -6188,12 +6204,17 @@
 	    if (wholeMatch) {
 	      return wholeMatch;
 	    }
-	    // words match or lookahead match
+	    // words match
 	    var wordsMatch = match.words(text, query, options);
-	    var lookaheadMatch = match.lookahead(text, query, options);
-	    if (wordsMatch || lookaheadMatch) {
-	      return Math.max(wordsMatch, lookaheadMatch);
+	    if (wordsMatch) {
+	      return wordsMatch;
 	    }
+	    // lookahead match
+	    var lookaheadMatch = match.lookahead(text, query, options);
+	    if (lookaheadMatch) {
+	      return lookaheadMatch;
+	    }
+
 	    return 0;
 	  };
 
