@@ -15,6 +15,11 @@
   /*
     helpers
   */
+  var Range = function(start, end) {
+    this.start = start;
+    this.end = end;
+  };
+
   var MULTIPLIERS = {
     MATCH_WHOLE: 4,
     MATCH_WORD: 2
@@ -84,46 +89,147 @@
     defaults
   */
   var applyDefaults = function(options) {
-    options.minWord = options.minWord !== undefined ? options.minWord : 3;
-    options.replaceDiacritics = options.replaceDiacritics !== undefined ? options.replaceDiacritics : true;
-    options.returnMatches = options.returnMatches !== undefined ? options.returnMatches : false;
-    options.matchStartToken = options.matchStartToken !== undefined ? options.matchStartToken : '<strong>';
-    options.matchEndToken = options.matchEndToken !== undefined ? options.matchEndToken : '</strong>';
+    (options.minWord === undefined) && (options.minWord = 3);
+    (options.replaceDiacritics === undefined) && (options.replaceDiacritics = true);
+    (options.returnMatches === undefined) && (options.returnMatches = false);
+    (options.matchStartToken === undefined) && (options.matchStartToken = '<strong>');
+    (options.matchEndToken === undefined) && (options.matchEndToken = '</strong>');
+  };
+
+  /*
+    highlight
+  */
+  var highlighText = function(text, start, end, options) {
+    if (start === -1 && end === -1) return text;
+
+    return text.slice(0, start)
+      + options.matchStartToken
+      + text.slice(start, end)
+      + options.matchEndToken
+      + text.slice(end)
+    ;
+  };
+
+  var removeUnnecessaryMatchTokens = function(text, options) {
+    text = text.replace(new RegExp(options.matchEndToken + ' ' + options.matchStartToken, 'g'), ' ');
+    text = text.replace(new RegExp(options.matchEndToken + options.matchStartToken, 'g'));
+    return text;
+  };
+
+  var highlightMatch = {
+    whole: function(originalText, range, options) {
+      return highlighText(originalText, range.start, range.end, options)
+    },
+
+    words: function(text, ranges, options) {
+      ranges.sort(function(r1, r2) {
+        return r1.start - r2.start;
+      });
+      for (var i = 0, size = ranges.length; i < size; i++) {
+        var compensation = i * (options.matchStartToken.length + options.matchEndToken.length);
+        text = highlighText(text, ranges[i].start + compensation, ranges[i].end + compensation, options);
+      }
+      return removeUnnecessaryMatchTokens(text, options);
+    },
+
+    lookahead: function(text, ranges, options) {
+      ranges.sort(function(r1, r2) {
+        return r1.start - r2.start;
+      });
+      for (var i = 0, size = ranges.length; i < size; i++) {
+        var compensation = i * (options.matchStartToken.length + options.matchEndToken.length);
+        text = highlighText(text, ranges[i].start + compensation, ranges[i].end + compensation, options);
+      }
+      return removeUnnecessaryMatchTokens(text, options);
+    }
   };
 
   /*
     match
   */
+  var bestMatch = function(originalText, preparedText, query, options) {
+    var matches = matching();
+
+    // whole match
+    var wholeMatch = matches.whole(originalText, preparedText, query, options);
+    var wholeRelevance = options.returnMatches ? wholeMatch.relevance : wholeMatch;
+    if (wholeRelevance) {
+      return wholeMatch;
+    }
+
+    // words match or lookahead match
+    var wordsMatch = matches.words(originalText, preparedText, query, options);
+    var wordsRelevance = options.returnMatches ? wordsMatch.relevance : wordsMatch;
+    var lookaheadMatch = matches.lookahead(originalText, preparedText, query, options);
+    var lookaheadRelevance = options.returnMatches ? lookaheadMatch.relevance : lookaheadMatch;
+
+    if (!wordsRelevance && !lookaheadRelevance) {
+      // TODO fazer o if aqui
+      return 0;
+    }
+
+    if (wordsRelevance > lookaheadRelevance) {
+      return wordsMatch;
+    } else {
+      return lookaheadMatch;
+    }
+  };
+
   var matching = function() {
     var proto = {
-      chars: function(charWord, charQuery) {
-        return charWord === charQuery;
-      },
-
-      whole: function(text, query, options) {
-        if (text.indexOf(query)>-1) {
-          return query.length * MULTIPLIERS.MATCH_WHOLE;
+      whole: function(originalText, preparedText, query, options) {
+        var relevance = 0;
+        var start = preparedText.indexOf(query), end = -1;
+        if (start > -1) {
+          end = start + query.length;
+          relevance = query.length * MULTIPLIERS.MATCH_WHOLE;
         }
-        return 0;
+        if (options.returnMatches) {
+          var range = new Range(start, end);
+          return {
+            relevance: relevance,
+            match: highlightMatch.whole(originalText, range, options)
+          }
+        } else {
+          return relevance;
+        }
       },
 
-      words: function(text, query, options) {
+      words: function(originalText, preparedText, query, options) {
+        var textWords = preparedText.split(' ');
+
         var queryWords = query.split(' ').filter(function(word) {
-          return word.length > options.minWord;
+          return word.length >= options.minWord;
         });
 
-        return queryWords.reduce(function(acc, word) {
-          var didMatch = text.indexOf(word)>-1;
-          return acc + (didMatch ? word.length * MULTIPLIERS.MATCH_WORD : 0);
-        }, 0);
+        var ranges = [];
+        var relevance = 0;
+        var startIndex = 0;
+        textWords.forEach(function(word) {
+          if (queryWords.indexOf(word) > -1) {
+            var start = startIndex, end = start + word.length;
+            relevance += (word.length * MULTIPLIERS.MATCH_WORD);
+            ranges.push(new Range(start, end));
+          }
+          startIndex += word.length + 1; // `+ 1` because of the space between words
+        });
+
+        if (options.returnMatches) {
+          return {
+            relevance: relevance,
+            match: highlightMatch.words(originalText, ranges, options)
+          }
+        } else {
+          return relevance;
+        }
       },
 
-      lookahead: function(text, query, options) {
+      lookahead: function(originalText, preparedText, query, options) {
         var relevance = 0;
 
         query = clearWhitespaces(query);
         query.split('').forEach(function(charQuery) {
-          var j = text.indexOf(charQuery);
+          var j = preparedText.indexOf(charQuery);
           var didFindChar = j > -1;
           var isAdjacent = j === 0;
 
@@ -135,7 +241,7 @@
             return 0;
           }
           // on next iteration, will look in the text hereinafter
-          text = text.substring(parseInt(j) + 1);
+          preparedText = preparedText.substring(parseInt(j) + 1);
         });
 
         return relevance;
@@ -149,46 +255,28 @@
     return Object.create(proto);
   };
 
-  var bestMatch = function(text, query, options) {
-    // matching
-    var matches = matching();
-
-    // whole match
-    var wholeMatch = matches.whole(text, query, options);
-    if (wholeMatch) {
-      return wholeMatch;
-    }
-    // words match or lookahead match
-    var wordsMatch = matches.words(text, query, options);
-    var lookaheadMatch = matches.lookahead(text, query, options);
-    if (wordsMatch || lookaheadMatch) {
-      return Math.max(wordsMatch, lookaheadMatch);
-    }
-    return 0;
-  };
-
-
   /*
     api
   */
-  var doesMatch = function(text, query, options) {
+  var doesMatch = function(originalText, query, options) {
     options = options || {};
 
     // validate
     var validate = validation();
 
-    validate.text(text);
+    validate.text(originalText);
     validate.query(query);
     validate.options(options);
 
     // defaults
     applyDefaults(options);
 
-    // arrange
-    text = prepareString(text, options);
-    query = prepareString(query, options);
-
-    return bestMatch(text, query, options);
+    return bestMatch(
+      originalText,
+      prepareString(originalText, options),
+      prepareString(query, options),
+      options
+    );
   };
 
   return doesMatch;
