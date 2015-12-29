@@ -171,6 +171,30 @@
       },
 
       words: function(originalText, preparedText, query, options) {
+        var someQueryWordMatchesWord = function(queryWords, textWord) {
+          // try to match whole word
+          for (var i = 0; i < queryWords.length; i++) {
+            if (queryWords[i] === textWord) {
+              return {
+                word: queryWords[i],
+                offset: 0
+              };
+            }
+          }
+
+          // try to match partial word
+          for (var i = 0; i < queryWords.length; i++) {
+            var indexOf = textWord.indexOf(queryWords[i]);
+            if (indexOf > -1) {
+              return {
+                word: queryWords[i],
+                offset: indexOf
+              };
+            }
+          }
+          return {};
+        };
+
         var textWords = preparedText.split(' ');
         var queryWords = query.split(' ').filter(function(word) {
           return word.length >= options.minWord;
@@ -179,13 +203,18 @@
         var ranges = [];
         var relevance = 0;
         var startIndex = 0;
-        textWords.forEach(function(word) {
-          if (queryWords.indexOf(word) > -1) {
-            var start = startIndex, end = start + word.length;
-            relevance += (word.length * MULTIPLIERS.MATCH_WORD);
+        var unmatchedQueryWords = queryWords;
+
+        textWords.forEach(function(textWord) {
+          var queryWordMatchResult = someQueryWordMatchesWord(unmatchedQueryWords, textWord);
+
+          if (queryWordMatchResult.word) {
+            unmatchedQueryWords.splice(unmatchedQueryWords.indexOf(queryWordMatchResult.word), 1);
+            var start = startIndex + queryWordMatchResult.offset, end = start + queryWordMatchResult.word.length;
+            relevance += (queryWordMatchResult.word.length * MULTIPLIERS.MATCH_WORD);
             ranges.push(new Range(start, end));
           }
-          startIndex += word.length + 1; // `+ 1` because of the space between words
+          startIndex += textWord.length + 1; // `+ 1` because of the space between words
         });
 
         return matchResult(originalText, relevance, ranges, options);
