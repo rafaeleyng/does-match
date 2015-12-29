@@ -154,12 +154,7 @@
     var lookaheadRelevance = options.returnMatches ? lookaheadMatch.relevance : lookaheadMatch;
 
     // console.log('words', wordsMatch, wordsRelevance);
-    // console.log('lookahead', lookaheadMatch, lookaheadRelevance);
-
-    if (!wordsRelevance && !lookaheadRelevance) {
-      // TODO fazer o if aqui
-      return 0;
-    }
+    console.log('lookahead', lookaheadMatch, lookaheadRelevance);
 
     if (wordsRelevance > lookaheadRelevance) {
       return wordsMatch;
@@ -169,6 +164,16 @@
   };
 
   var matching = function() {
+    var matchResult = function(originalText, relevance, highlightRanges, highlightFunction, options) {
+      if (!options.returnMatches) {
+        return relevance;
+      }
+      return {
+        relevance: relevance,
+        match: highlightFunction(originalText, highlightRanges, options)
+      };
+    };
+
     var proto = {
       whole: function(originalText, preparedText, query, options) {
         var relevance = 0;
@@ -177,15 +182,8 @@
           end = start + query.length;
           relevance = query.length * MULTIPLIERS.MATCH_WHOLE;
         }
-        if (options.returnMatches) {
-          var range = new Range(start, end);
-          return {
-            relevance: relevance,
-            match: highlightMatch.whole(originalText, range, options)
-          }
-        } else {
-          return relevance;
-        }
+
+        return matchResult(originalText, relevance, new Range(start, end), highlightMatch.whole, options);
       },
 
       words: function(originalText, preparedText, query, options) {
@@ -206,45 +204,40 @@
           startIndex += word.length + 1; // `+ 1` because of the space between words
         });
 
-        if (options.returnMatches) {
-          return {
-            relevance: relevance,
-            match: highlightMatch.ranges(originalText, ranges, options)
-          }
-        } else {
-          return relevance;
-        }
+        return matchResult(originalText, relevance, ranges, highlightMatch.ranges, options);
       },
 
       lookahead: function(originalText, preparedText, query, options) {
         var relevance = 0;
+        var ranges = [];
 
         query = clearWhitespaces(query);
-        query.split('').forEach(function(charQuery) {
-          var j = preparedText.indexOf(charQuery);
-          var didFindChar = j > -1;
-          var isAdjacent = j === 0;
+        // console.log('originalText', originalText);
+        // console.log('preparedText', preparedText);
+        // console.log('query', query);
+        try {
+          query.split('').forEach(function(charQuery) {
+            var j = preparedText.indexOf(charQuery);
+            var didFindChar = j > -1;
+            var isAdjacent = j === 0;
 
-          if (isAdjacent) {
-            relevance++;
-          }
+            if (!didFindChar) {
+              throw new Error();
+            } else if (isAdjacent) {
+              relevance += MULTIPLIERS.MATCH_WORD;
+            } else {
+              relevance++;
+            }
 
-          if (!didFindChar) {
-            return 0;
-          }
-          // on next iteration, will look in the text hereinafter
-          preparedText = preparedText.substring(parseInt(j) + 1);
-        });
-
-        var ranges = []
-        if (options.returnMatches) {
-          return {
-            relevance: relevance,
-            match: highlightMatch.ranges(originalText, ranges, options)
-          }
-        } else {
-          return relevance;
+            // on next iteration, will look in the text hereinafter
+            preparedText = preparedText.substring(parseInt(j) + 1);
+          });
+        } catch (e) {
+          console.log(e);
+          relevance = 0;
         }
+
+        return matchResult(originalText, relevance, ranges, highlightMatch.ranges, options);
       }
     };
 
