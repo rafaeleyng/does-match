@@ -41,10 +41,7 @@
     if (!options.replaceDiacritics) {
       return string;
     }
-
-    var replaced = string.split('').map(replaceDiacritics);
-
-    return replaced.join('');
+    return string.split('').map(replaceDiacritics).join('');
   };
 
   /*
@@ -72,15 +69,15 @@
         if (options.replaceDiacritics !== undefined && typeof options.replaceDiacritics !== 'boolean') {
           throw new Error('`replaceDiacritics`: expected boolean');
         }
-        if (options.returnMatches !== undefined && typeof options.returnMatches !== 'boolean') {
-          throw new Error('`returnMatches`: expected boolean');
+        if (options.highlightMatches !== undefined && typeof options.highlightMatches !== 'boolean') {
+          throw new Error('`highlightMatches`: expected boolean');
         }
       }
     };
 
-    function isString(src) {
-      return typeof src === 'string'
-    }
+    var isString = function(src) {
+      return typeof src === 'string';
+    };
 
     return Object.create(proto);
   };
@@ -91,46 +88,9 @@
   var applyDefaults = function(options) {
     (options.minWord === undefined) && (options.minWord = 3);
     (options.replaceDiacritics === undefined) && (options.replaceDiacritics = true);
-    (options.returnMatches === undefined) && (options.returnMatches = false);
-    (options.matchStartToken === undefined) && (options.matchStartToken = '<strong>');
-    (options.matchEndToken === undefined) && (options.matchEndToken = '</strong>');
-  };
-
-  /*
-    highlight
-  */
-  var highlighText = function(text, start, end, options) {
-    if (start === -1 && end === -1) return text;
-
-    return text.slice(0, start)
-      + options.matchStartToken
-      + text.slice(start, end)
-      + options.matchEndToken
-      + text.slice(end)
-    ;
-  };
-
-  var removeUnnecessaryMatchTokens = function(text, options) {
-    text = text.replace(new RegExp(options.matchEndToken + ' ' + options.matchStartToken, 'g'), ' ');
-    text = text.replace(new RegExp(options.matchEndToken + options.matchStartToken, 'g'));
-    return text;
-  };
-
-  var highlightMatch = {
-    whole: function(originalText, range, options) {
-      return highlighText(originalText, range.start, range.end, options)
-    },
-
-    ranges: function(text, ranges, options) {
-      ranges.sort(function(r1, r2) {
-        return r1.start - r2.start;
-      });
-      for (var i = 0, size = ranges.length; i < size; i++) {
-        var compensation = i * (options.matchStartToken.length + options.matchEndToken.length);
-        text = highlighText(text, ranges[i].start + compensation, ranges[i].end + compensation, options);
-      }
-      return removeUnnecessaryMatchTokens(text, options);
-    }
+    (options.highlightMatches === undefined) && (options.highlightMatches = false);
+    (options.highlightStart === undefined) && (options.highlightStart = '<strong>');
+    (options.highlightEnd === undefined) && (options.highlightEnd = '</strong>');
   };
 
   /*
@@ -141,16 +101,16 @@
 
     // whole match
     var wholeMatch = matches.whole(originalText, preparedText, query, options);
-    var wholeRelevance = options.returnMatches ? wholeMatch.relevance : wholeMatch;
+    var wholeRelevance = options.highlightMatches ? wholeMatch.relevance : wholeMatch;
     if (wholeRelevance) {
       return wholeMatch;
     }
 
     // words match or lookahead match
     var wordsMatch = matches.words(originalText, preparedText, query, options);
-    var wordsRelevance = options.returnMatches ? wordsMatch.relevance : wordsMatch;
+    var wordsRelevance = options.highlightMatches ? wordsMatch.relevance : wordsMatch;
     var lookaheadMatch = matches.lookahead(originalText, preparedText, query, options);
-    var lookaheadRelevance = options.returnMatches ? lookaheadMatch.relevance : lookaheadMatch;
+    var lookaheadRelevance = options.highlightMatches ? lookaheadMatch.relevance : lookaheadMatch;
 
     if (wordsRelevance > lookaheadRelevance) {
       return wordsMatch;
@@ -160,13 +120,41 @@
   };
 
   var matching = function() {
-    var matchResult = function(originalText, relevance, highlightRanges, highlightFunction, options) {
-      if (!options.returnMatches) {
+    var matchResult = function(originalText, relevance, highlightRanges, options) {
+      var highlightText = function(text, start, end, options) {
+        if (start === -1 && end === -1) return text;
+
+        return text.slice(0, start)
+          + options.highlightStart
+          + text.slice(start, end)
+          + options.highlightEnd
+          + text.slice(end)
+        ;
+      };
+
+      var removeUnnecessaryHighlightTokens = function(text, options) {
+        text = text.replace(new RegExp(options.highlightEnd + ' ' + options.highlightStart, 'g'), ' ');
+        text = text.replace(new RegExp(options.highlightEnd + options.highlightStart, 'g'));
+        return text;
+      };
+
+      var highlightMatch = function(text, ranges, options) {
+        ranges.sort(function(r1, r2) {
+          return r1.start - r2.start;
+        });
+        for (var i = 0, size = ranges.length; i < size; i++) {
+          var compensation = i * (options.highlightStart.length + options.highlightEnd.length);
+          text = highlightText(text, ranges[i].start + compensation, ranges[i].end + compensation, options);
+        }
+        return removeUnnecessaryHighlightTokens(text, options);
+      };
+
+      if (!options.highlightMatches) {
         return relevance;
       }
       return {
         relevance: relevance,
-        match: highlightFunction(originalText, highlightRanges, options)
+        match: highlightMatch(originalText, highlightRanges, options)
       };
     };
 
@@ -179,7 +167,7 @@
           relevance = query.length * MULTIPLIERS.MATCH_WHOLE;
         }
 
-        return matchResult(originalText, relevance, new Range(start, end), highlightMatch.whole, options);
+        return matchResult(originalText, relevance, [new Range(start, end)], options);
       },
 
       words: function(originalText, preparedText, query, options) {
@@ -200,7 +188,7 @@
           startIndex += word.length + 1; // `+ 1` because of the space between words
         });
 
-        return matchResult(originalText, relevance, ranges, highlightMatch.ranges, options);
+        return matchResult(originalText, relevance, ranges, options);
       },
 
       lookahead: function(originalText, preparedText, query, options) {
@@ -242,13 +230,13 @@
         }
         ranges.push(new Range(start, start + adjacentChars + 1));
 
-        return matchResult(originalText, relevance, ranges, highlightMatch.ranges, options);
+        return matchResult(originalText, relevance, ranges, options);
       }
     };
 
-    function clearWhitespaces(str) {
+    var clearWhitespaces = function(str) {
       return str.replace(/ /g, '');
-    }
+    };
 
     return Object.create(proto);
   };

@@ -33,8 +33,8 @@ describe('validation', function() {
       expect(doesMatch.bind(doesMatch, 'some', 'string', {replaceDiacritics: 'invalid'})).to.throw('`replaceDiacritics`: expected boolean');
     });
 
-    it('should throw if `returnMatches` option is not a boolean', function() {
-      expect(doesMatch.bind(doesMatch, 'some', 'string', {returnMatches: 'invalid'})).to.throw('`returnMatches`: expected boolean');
+    it('should throw if `highlightMatches` option is not a boolean', function() {
+      expect(doesMatch.bind(doesMatch, 'some', 'string', {highlightMatches: 'invalid'})).to.throw('`highlightMatches`: expected boolean');
     });
   });
 });

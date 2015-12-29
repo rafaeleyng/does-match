@@ -24,9 +24,9 @@ describe('lookahead match', function() {
     expect(doesMatch(text, 'curcaZZZ')).to.equal(0);
   });
 
-  it('should return matched query, when returnMatches is `true`', function() {
+  it('should return matched query, when highlightMatches is `true`', function() {
     var match = function(query, expectedMatch) {
-      var actualMatch = doesMatch(text, query, {returnMatches: true}).match;
+      var actualMatch = doesMatch(text, query, {highlightMatches: true}).match;
       expect(actualMatch).to.equal(expectedMatch);
     };
 

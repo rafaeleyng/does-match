@@ -39,9 +39,9 @@ describe('words match', function() {
     );
   });
 
-  it('should return matched query, when returnMatches is `true`', function() {
+  it('should return matched query, when highlightMatches is `true`', function() {
     var match = function(query, expectedMatch) {
-      var actualMatch = doesMatch(text, query, {returnMatches: true, minWord: 2}).match;
+      var actualMatch = doesMatch(text, query, {highlightMatches: true, minWord: 2}).match;
       expect(actualMatch).to.equal(expectedMatch);
     };
 
