@@ -43,7 +43,7 @@
   };
 
   /*
-    options
+    validation
   */
   var validation = function() {
     var proto = {
@@ -67,6 +67,9 @@
         if (options.replaceDiacritics !== undefined && typeof options.replaceDiacritics !== 'boolean') {
           throw new Error('`replaceDiacritics`: expected boolean');
         }
+        if (options.returnMatches !== undefined && typeof options.returnMatches !== 'boolean') {
+          throw new Error('`returnMatches`: expected boolean');
+        }
       }
     };
 
@@ -75,6 +78,17 @@
     }
 
     return Object.create(proto);
+  };
+
+  /*
+    defaults
+  */
+  var applyDefaults = function(options) {
+    options.minWord = options.minWord !== undefined ? options.minWord : 3;
+    options.replaceDiacritics = options.replaceDiacritics !== undefined ? options.replaceDiacritics : true;
+    options.returnMatches = options.returnMatches !== undefined ? options.returnMatches : false;
+    options.matchStartToken = options.matchStartToken !== undefined ? options.matchStartToken : '<strong>';
+    options.matchEndToken = options.matchEndToken !== undefined ? options.matchEndToken : '</strong>';
   };
 
   /*
@@ -168,8 +182,7 @@
     validate.options(options);
 
     // defaults
-    options.minWord = options.minWord !== undefined ? options.minWord : 3;
-    options.replaceDiacritics = options.replaceDiacritics !== undefined ? options.replaceDiacritics : true;
+    applyDefaults(options);
 
     // arrange
     text = prepareString(text, options);
