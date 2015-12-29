@@ -30,7 +30,7 @@ describe('lookahead match', function() {
       expect(actualMatch).to.equal(expectedMatch);
     };
 
-    match('c c b b', 'The <strong>C</strong>urious <strong>C</strong>ase of <strong>B</strong>enjamin <strong>B</strong>tton');
+    match('c c b b', 'The <strong>C</strong>urious <strong>C</strong>ase of <strong>B</strong>enjamin <strong>B</strong>utton');
 
     match('cur ca b b', 'The <strong>Cur</strong>ious <strong>Ca</strong>se of <strong>B</strong>enjamin <strong>B</strong>utton');
 

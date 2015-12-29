@@ -142,7 +142,6 @@
     // whole match
     var wholeMatch = matches.whole(originalText, preparedText, query, options);
     var wholeRelevance = options.returnMatches ? wholeMatch.relevance : wholeMatch;
-    // console.log('whole', wholeMatch, wholeRelevance);
     if (wholeRelevance) {
       return wholeMatch;
     }
@@ -152,9 +151,6 @@
     var wordsRelevance = options.returnMatches ? wordsMatch.relevance : wordsMatch;
     var lookaheadMatch = matches.lookahead(originalText, preparedText, query, options);
     var lookaheadRelevance = options.returnMatches ? lookaheadMatch.relevance : lookaheadMatch;
-
-    // console.log('words', wordsMatch, wordsRelevance);
-    console.log('lookahead', lookaheadMatch, lookaheadRelevance);
 
     if (wordsRelevance > lookaheadRelevance) {
       return wordsMatch;
@@ -208,15 +204,15 @@
       },
 
       lookahead: function(originalText, preparedText, query, options) {
-        var relevance = 0;
         var ranges = [];
+        var start = 0;
+        var relevance = 0;
+        var adjacentChars = 0;
+        var consumedChars = 0;
 
-        query = clearWhitespaces(query);
-        // console.log('originalText', originalText);
-        // console.log('preparedText', preparedText);
-        // console.log('query', query);
         try {
-          query.split('').forEach(function(charQuery) {
+          var isFirstIteration = true;
+          clearWhitespaces(query).split('').forEach(function(charQuery) {
             var j = preparedText.indexOf(charQuery);
             var didFindChar = j > -1;
             var isAdjacent = j === 0;
@@ -224,18 +220,27 @@
             if (!didFindChar) {
               throw new Error();
             } else if (isAdjacent) {
+              adjacentChars++;
               relevance += MULTIPLIERS.MATCH_WORD;
             } else {
+              if (!isFirstIteration) {
+                ranges.push(new Range(start, start + adjacentChars + 1));
+              }
+              isFirstIteration = false;
+              start = j + consumedChars;
+              adjacentChars = 0;
               relevance++;
             }
 
+            consumedChars += j + 1;
             // on next iteration, will look in the text hereinafter
             preparedText = preparedText.substring(parseInt(j) + 1);
           });
         } catch (e) {
-          console.log(e);
+          ranges = [];
           relevance = 0;
         }
+        ranges.push(new Range(start, start + adjacentChars + 1));
 
         return matchResult(originalText, relevance, ranges, highlightMatch.ranges, options);
       }
