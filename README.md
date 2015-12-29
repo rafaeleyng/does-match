@@ -100,9 +100,9 @@ Minimum word length to take in account in words match.
 
 `boolean`
 
-If `true`, the text `Québec` will be matched both by `'quebec'` and `québec` queries.
+If `true`, the text `'Québec'` will be matched both by `'quebec'` and `'québec'` queries.
 
-If `false`, the text `Québec` will be matched only by `'québec'`.
+If `false`, the text `'Québec'` will be matched only by `'québec'`.
 
 ## How does it work
 
