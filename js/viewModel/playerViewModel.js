@@ -24,7 +24,13 @@ class PlayerViewModel {
 
     if (search) {
       this.songsData.forEach(function(song) {
-        song.relevance = doesMatch(song.title, search);
+        var matchResult = doesMatch(song.title, search, {
+          highlightMatches: true,
+          highlightStart: '<strong><u>',
+          highlightEnd: '</u></strong>',
+        });
+        song.matchedText = matchResult.match;
+        song.relevance = matchResult.relevance;
       });
       result = this.songsData.filter(function(song) {
         return song.relevance > 0;

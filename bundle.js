@@ -6020,7 +6020,13 @@
 
 	      if (search) {
 	        this.songsData.forEach(function (song) {
-	          song.relevance = doesMatch(song.title, search);
+	          var matchResult = doesMatch(song.title, search, {
+	            highlightMatches: true,
+	            highlightStart: '<strong><u>',
+	            highlightEnd: '</u></strong>'
+	          });
+	          song.matchedText = matchResult.match;
+	          song.relevance = matchResult.relevance;
 	        });
 	        result = this.songsData.filter(function (song) {
 	          return song.relevance > 0;
@@ -6069,19 +6075,24 @@
 	  /*
 	    helpers
 	  */
+	  var Range = function(start, end) {
+	    this.start = start;
+	    this.end = end;
+	  };
+
 	  var MULTIPLIERS = {
 	    MATCH_WHOLE: 4,
 	    MATCH_WORD: 2
 	  };
 
 	  var replaceDiacritics = function(c) {
-	    'àáãâ'.indexOf(c)>-1 && (c = 'a');
-	     'èéê'.indexOf(c)>-1 && (c = 'e');
-	     'ìíî'.indexOf(c)>-1 && (c = 'i');
-	     'òóô'.indexOf(c)>-1 && (c = 'o');
-	     'ùúû'.indexOf(c)>-1 && (c = 'u');
-	       'ç'.indexOf(c)>-1 && (c = 'c');
-	       'ñ'.indexOf(c)>-1 && (c = 'n');
+	    if ('àáãâ'.indexOf(c)>-1) return 'a';
+	    if ('èéê'.indexOf(c)>-1) return 'e';
+	    if ('ìíî'.indexOf(c)>-1) return 'i';
+	    if ('òóô'.indexOf(c)>-1) return 'o';
+	    if ('ùúû'.indexOf(c)>-1) return 'u';
+	    if ('ç'.indexOf(c)>-1) return 'c';
+	    if ('ñ'.indexOf(c)>-1) return 'n';
 	    return c;
 	  };
 
@@ -6090,132 +6101,228 @@
 	    if (!options.replaceDiacritics) {
 	      return string;
 	    }
-
-	    var replaced = '';
-	    for (var i in string) {
-	      replaced += replaceDiacritics(string[i]);
-	    }
-
-	    return replaced;
+	    return string.split('').map(replaceDiacritics).join('');
 	  };
 
 	  /*
-	    options
+	    validation
 	  */
-	  var validate = {
-	    text: function(text) {
-	      if (typeof text !== 'string') {
-	        throw new Error('`text`: expected string');
+	  var validation = function() {
+	    var proto = {
+	      text: function(text) {
+	        if (!isString(text)) {
+	          throw new Error('`text`: expected string');
+	        }
+	      },
+	      query: function(query) {
+	        if (!isString(query)) {
+	          throw new Error('`query`: expected string');
+	        }
+	      },
+	      options: function(options) {
+	        var minWord = options.minWord;
+	        if (minWord !== undefined && typeof minWord !== 'number') {
+	          throw new Error('`minWord`: expected number');
+	        } else if (minWord < 1 || minWord > 10) {
+	          throw new Error('`minWord`: expected number between 1 and 10');
+	        }
+	        if (options.replaceDiacritics !== undefined && typeof options.replaceDiacritics !== 'boolean') {
+	          throw new Error('`replaceDiacritics`: expected boolean');
+	        }
+	        if (options.highlightMatches !== undefined && typeof options.highlightMatches !== 'boolean') {
+	          throw new Error('`highlightMatches`: expected boolean');
+	        }
 	      }
-	    },
-	    query: function(query) {
-	      if (typeof query !== 'string') {
-	        throw new Error('`query`: expected string');
-	      }
-	    },
-	    options: function(options) {
-	      var minWord = options.minWord;
-	      if (minWord !== undefined && typeof minWord !== 'number') {
-	        throw new Error('`minWord`: expected number');
-	      } else if (minWord < 1 || minWord > 10) {
-	        throw new Error('`minWord`: expected number between 1 and 10');
-	      }
-	      if (options.replaceDiacritics !== undefined && typeof options.replaceDiacritics !== 'boolean') {
-	        throw new Error('`replaceDiacritics`: expected boolean');
-	      }
-	    }
+	    };
+
+	    var isString = function(src) {
+	      return typeof src === 'string';
+	    };
+
+	    return Object.create(proto);
+	  };
+
+	  /*
+	    defaults
+	  */
+	  var applyDefaults = function(options) {
+	    (options.minWord === undefined) && (options.minWord = 3);
+	    (options.replaceDiacritics === undefined) && (options.replaceDiacritics = true);
+	    (options.highlightMatches === undefined) && (options.highlightMatches = false);
+	    (options.highlightStart === undefined) && (options.highlightStart = '<strong>');
+	    (options.highlightEnd === undefined) && (options.highlightEnd = '</strong>');
 	  };
 
 	  /*
 	    match
 	  */
-	  var match = {
-	    chars: function(charWord, charQuery) {
-	      return charWord === charQuery;
-	    },
+	  var bestMatch = function(originalText, preparedText, query, options) {
+	    var matches = matching();
 
-	    whole: function(text, query, options) {
-	      if (text.indexOf(query)>-1) {
-	        return query.length * MULTIPLIERS.MATCH_WHOLE;
-	      }
-	      return 0;
-	    },
-
-	    words: function(text, query, options) {
-	      var queryWords = query.split(' ').filter(function(word) {
-	        return word.length > options.minWord;
-	      });
-	      return queryWords.reduce(function(acc, word) {
-	        var didMatch = text.indexOf(word)>-1;
-	        return acc + (didMatch ? word.length * MULTIPLIERS.MATCH_WORD : 0);
-	      }, 0);
-	    },
-
-	    lookahead: function(text, query, options) {
-	      query = query.replace(/ /g, '');
-
-	      var relevance = 0;
-	      for (var i in query) {
-	        var charQuery = query[i];
-	        var didFindChar = false;
-	        var isAdjacent = true;
-	        for (var j in text) {
-	          var charText = text[j];
-	          if (charQuery === charText) {
-	            didFindChar = true;
-	            break;
-	          }
-	          isAdjacent = false;
-	        }
-	        if (isAdjacent) {
-	          relevance++;
-	        }
-	        if (!didFindChar) {
-	          return 0;
-	        }
-	        text = text.substring(parseInt(j) + 1); // on next iteration, will look in the text hereinafter
-	      }
-	      return relevance;
+	    // whole match
+	    var wholeMatch = matches.whole(originalText, preparedText, query, options);
+	    var wholeRelevance = options.highlightMatches ? wholeMatch.relevance : wholeMatch;
+	    if (wholeRelevance) {
+	      return wholeMatch;
 	    }
+
+	    // words match or lookahead match
+	    var wordsMatch = matches.words(originalText, preparedText, query, options);
+	    var wordsRelevance = options.highlightMatches ? wordsMatch.relevance : wordsMatch;
+	    var lookaheadMatch = matches.lookahead(originalText, preparedText, query, options);
+	    var lookaheadRelevance = options.highlightMatches ? lookaheadMatch.relevance : lookaheadMatch;
+
+	    if (wordsRelevance > lookaheadRelevance) {
+	      return wordsMatch;
+	    } else {
+	      return lookaheadMatch;
+	    }
+	  };
+
+	  var matching = function() {
+	    var matchResult = function(originalText, relevance, highlightRanges, options) {
+	      var highlightText = function(text, start, end, options) {
+	        if (start === -1 && end === -1) return text;
+
+	        return text.slice(0, start)
+	          + options.highlightStart
+	          + text.slice(start, end)
+	          + options.highlightEnd
+	          + text.slice(end)
+	        ;
+	      };
+
+	      var removeUnnecessaryHighlightTokens = function(text, options) {
+	        text = text.replace(new RegExp(options.highlightEnd + ' ' + options.highlightStart, 'g'), ' ');
+	        text = text.replace(new RegExp(options.highlightEnd + options.highlightStart, 'g'));
+	        return text;
+	      };
+
+	      var highlightMatch = function(text, ranges, options) {
+	        ranges.sort(function(r1, r2) {
+	          return r1.start - r2.start;
+	        });
+	        for (var i = 0, size = ranges.length; i < size; i++) {
+	          var compensation = i * (options.highlightStart.length + options.highlightEnd.length);
+	          text = highlightText(text, ranges[i].start + compensation, ranges[i].end + compensation, options);
+	        }
+	        return removeUnnecessaryHighlightTokens(text, options);
+	      };
+
+	      if (!options.highlightMatches) {
+	        return relevance;
+	      }
+	      return {
+	        relevance: relevance,
+	        match: highlightMatch(originalText, highlightRanges, options)
+	      };
+	    };
+
+	    var proto = {
+	      whole: function(originalText, preparedText, query, options) {
+	        var relevance = 0;
+	        var start = preparedText.indexOf(query), end = -1;
+	        if (start > -1) {
+	          end = start + query.length;
+	          relevance = query.length * MULTIPLIERS.MATCH_WHOLE;
+	        }
+
+	        return matchResult(originalText, relevance, [new Range(start, end)], options);
+	      },
+
+	      words: function(originalText, preparedText, query, options) {
+	        var textWords = preparedText.split(' ');
+	        var queryWords = query.split(' ').filter(function(word) {
+	          return word.length >= options.minWord;
+	        });
+
+	        var ranges = [];
+	        var relevance = 0;
+	        var startIndex = 0;
+	        textWords.forEach(function(word) {
+	          if (queryWords.indexOf(word) > -1) {
+	            var start = startIndex, end = start + word.length;
+	            relevance += (word.length * MULTIPLIERS.MATCH_WORD);
+	            ranges.push(new Range(start, end));
+	          }
+	          startIndex += word.length + 1; // `+ 1` because of the space between words
+	        });
+
+	        return matchResult(originalText, relevance, ranges, options);
+	      },
+
+	      lookahead: function(originalText, preparedText, query, options) {
+	        var ranges = [];
+	        var start = 0;
+	        var relevance = 0;
+	        var adjacentChars = 0;
+	        var consumedChars = 0;
+
+	        try {
+	          var isFirstIteration = true;
+	          clearWhitespaces(query).split('').forEach(function(charQuery) {
+	            var j = preparedText.indexOf(charQuery);
+	            var didFindChar = j > -1;
+	            var isAdjacent = j === 0;
+
+	            if (!didFindChar) {
+	              throw new Error();
+	            } else if (isAdjacent) {
+	              adjacentChars++;
+	              relevance += MULTIPLIERS.MATCH_WORD;
+	            } else {
+	              if (!isFirstIteration) {
+	                ranges.push(new Range(start, start + adjacentChars + 1));
+	              }
+	              isFirstIteration = false;
+	              start = j + consumedChars;
+	              adjacentChars = 0;
+	              relevance++;
+	            }
+
+	            consumedChars += j + 1;
+	            // on next iteration, will look in the text hereinafter
+	            preparedText = preparedText.substring(parseInt(j) + 1);
+	          });
+	        } catch (e) {
+	          ranges = [];
+	          relevance = 0;
+	        }
+	        ranges.push(new Range(start, start + adjacentChars + 1));
+
+	        return matchResult(originalText, relevance, ranges, options);
+	      }
+	    };
+
+	    var clearWhitespaces = function(str) {
+	      return str.replace(/ /g, '');
+	    };
+
+	    return Object.create(proto);
 	  };
 
 	  /*
 	    api
 	  */
-	  var doesMatch = function(text, query, options) {
+	  var doesMatch = function(originalText, query, options) {
 	    options = options || {};
 
 	    // validate
-	    validate.text(text);
+	    var validate = validation();
+
+	    validate.text(originalText);
 	    validate.query(query);
 	    validate.options(options);
 
 	    // defaults
-	    options.minWord = options.minWord !== undefined ? options.minWord : 3;
-	    options.replaceDiacritics = options.replaceDiacritics !== undefined ? options.replaceDiacritics : true;
+	    applyDefaults(options);
 
-	    // arrange
-	    text = prepareString(text, options);
-	    query = prepareString(query, options);
-
-	    // matches
-	    // whole match
-	    var wholeMatch = match.whole(text, query, options);
-	    if (wholeMatch) {
-	      return wholeMatch;
-	    }
-	    // words match
-	    var wordsMatch = match.words(text, query, options);
-	    if (wordsMatch) {
-	      return wordsMatch;
-	    }
-	    // lookahead match
-	    var lookaheadMatch = match.lookahead(text, query, options);
-	    if (lookaheadMatch) {
-	      return lookaheadMatch;
-	    }
-
-	    return 0;
+	    return bestMatch(
+	      originalText,
+	      prepareString(originalText, options),
+	      prepareString(query, options),
+	      options
+	    );
 	  };
 
 	  return doesMatch;

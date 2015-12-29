@@ -51,7 +51,7 @@
               <tbody data-bind="foreach: songs">
                 <tr data-bind="click: $root.selectSong">
                   <td>
-                    <span data-bind="text: title"></span>
+                    <span data-bind="html: matchedText"></span>
                     <span data-bind="text: author" class="song-author"></span>
                   </td>
                   <td data-bind="text: relevance"></td>
