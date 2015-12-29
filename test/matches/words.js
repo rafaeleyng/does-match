@@ -54,4 +54,14 @@ describe('words match', function() {
     match('text original the is this', '<strong>This is the Original Text</strong>');
     match('text text the original this is', '<strong>This is the Original Text</strong>');
   });
+
+  it('should return matched query, when highlightMatches is `true`', function() {
+    var match = function(query, expectedMatch) {
+      var result = doesMatch('Somebody To Love', query, {highlightMatches: true, minWord: 2});
+      expect(result.match).to.equal(expectedMatch);
+      expect(result.relevance).to.equal(16);
+    };
+
+    match('love some', '<strong>Some</strong>body To <strong>Love</strong>');
+  });
 });
