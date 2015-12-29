@@ -32,5 +32,9 @@ describe('validation', function() {
     it('should throw if `replaceDiacritics` option is not a boolean', function() {
       expect(doesMatch.bind(doesMatch, 'some', 'string', {replaceDiacritics: 'invalid'})).to.throw('`replaceDiacritics`: expected boolean');
     });
+
+    it('should throw if `highlightMatches` option is not a boolean', function() {
+      expect(doesMatch.bind(doesMatch, 'some', 'string', {highlightMatches: 'invalid'})).to.throw('`highlightMatches`: expected boolean');
+    });
   });
 });
