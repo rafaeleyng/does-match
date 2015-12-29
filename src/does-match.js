@@ -121,18 +121,7 @@
       return highlighText(originalText, range.start, range.end, options)
     },
 
-    words: function(text, ranges, options) {
-      ranges.sort(function(r1, r2) {
-        return r1.start - r2.start;
-      });
-      for (var i = 0, size = ranges.length; i < size; i++) {
-        var compensation = i * (options.matchStartToken.length + options.matchEndToken.length);
-        text = highlighText(text, ranges[i].start + compensation, ranges[i].end + compensation, options);
-      }
-      return removeUnnecessaryMatchTokens(text, options);
-    },
-
-    lookahead: function(text, ranges, options) {
+    ranges: function(text, ranges, options) {
       ranges.sort(function(r1, r2) {
         return r1.start - r2.start;
       });
@@ -153,6 +142,7 @@
     // whole match
     var wholeMatch = matches.whole(originalText, preparedText, query, options);
     var wholeRelevance = options.returnMatches ? wholeMatch.relevance : wholeMatch;
+    // console.log('whole', wholeMatch, wholeRelevance);
     if (wholeRelevance) {
       return wholeMatch;
     }
@@ -162,6 +152,9 @@
     var wordsRelevance = options.returnMatches ? wordsMatch.relevance : wordsMatch;
     var lookaheadMatch = matches.lookahead(originalText, preparedText, query, options);
     var lookaheadRelevance = options.returnMatches ? lookaheadMatch.relevance : lookaheadMatch;
+
+    // console.log('words', wordsMatch, wordsRelevance);
+    // console.log('lookahead', lookaheadMatch, lookaheadRelevance);
 
     if (!wordsRelevance && !lookaheadRelevance) {
       // TODO fazer o if aqui
@@ -197,7 +190,6 @@
 
       words: function(originalText, preparedText, query, options) {
         var textWords = preparedText.split(' ');
-
         var queryWords = query.split(' ').filter(function(word) {
           return word.length >= options.minWord;
         });
@@ -217,7 +209,7 @@
         if (options.returnMatches) {
           return {
             relevance: relevance,
-            match: highlightMatch.words(originalText, ranges, options)
+            match: highlightMatch.ranges(originalText, ranges, options)
           }
         } else {
           return relevance;
@@ -244,7 +236,15 @@
           preparedText = preparedText.substring(parseInt(j) + 1);
         });
 
-        return relevance;
+        var ranges = []
+        if (options.returnMatches) {
+          return {
+            relevance: relevance,
+            match: highlightMatch.ranges(originalText, ranges, options)
+          }
+        } else {
+          return relevance;
+        }
       }
     };
 

@@ -30,15 +30,13 @@ describe('words match', function() {
     expect(doesMatch(text, 'text is original xxxx')).to.equal(24); // doesn't match 'is', 'xxxx'
   });
 
-  it('should return matched query, when returnMatches is `true`', function() {
-    var match = function(query, expectedMatch) {
-      var actualMatch = doesMatch(text, query, {returnMatches: true}).match;
-      expect(actualMatch).to.equal(expectedMatch);
-    };
-
-    match('text original', 'This is the <strong>Original Text</strong>');
-    match('this text original', '<strong>This</strong> is the <strong>Original Text</strong>');
-    match('this the text original', '<strong>This</strong> is <strong>the Original Text</strong>');
+  it('should not count multiple times the same word', function() {
+    expect(doesMatch(text, 'text original original')).to.equal(doesMatch(text, 'text original'));
+    expect(
+      doesMatch('This is the Original Original Text', 'text original text original original')
+    ).to.equal(
+      doesMatch('This is the Original Original Text', 'text original original')
+    );
   });
 
   it('should return matched query, when returnMatches is `true`', function() {
@@ -49,13 +47,11 @@ describe('words match', function() {
 
     match('text original', 'This is the <strong>Original Text</strong>');
     match('text is original', 'This <strong>is</strong> the <strong>Original Text</strong>');
-    match('text original the is this', '<strong>This is the Original Text</strong>');
-    match('text the original this is', '<strong>This is the Original Text</strong>');
-  });
+    match('this text original', '<strong>This</strong> is the <strong>Original Text</strong>');
+    match('this the text original', '<strong>This</strong> is <strong>the Original Text</strong>');
 
-  // this reveals a bug
-  // it('should not count multiple times the same word', function() {
-  //   expect(doesMatch(text, 'text original original')).to.equal(24); // same as matching 'text original'
-  //   expect(doesMatch('This is the Original Original Text', 'text original original original')).to.equal(40); // matching 'original' only twice
-  // });
+    // matching all the sentence, with words in wrong order
+    match('text original the is this', '<strong>This is the Original Text</strong>');
+    match('text text the original this is', '<strong>This is the Original Text</strong>');
+  });
 });
