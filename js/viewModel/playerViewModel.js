@@ -5,7 +5,7 @@ class PlayerViewModel {
   constructor(songService) {
     this.selectedSong = ko.observable();
     // search
-    this.search = ko.observable('love some');
+    this.search = ko.observable('all the ');
     this.search.subscribe(this.filterSongs.bind(this));
     // songs
     this.songsData = songService.getSongs();
