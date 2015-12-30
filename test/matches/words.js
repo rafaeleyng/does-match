@@ -55,21 +55,21 @@ describe('words match', function() {
     match('text text the original this is', '<strong>This is the Original Text</strong>');
   });
 
-  // it('should work the same when words are out of order', function() {
-  //   expect(
-  //     doesMatch('Somebody To Love', 'somebody love', {highlightMatches: true}).relevance
-  //   ).to.equal(
-  //     doesMatch('Somebody To Love', 'love somebody', {highlightMatches: true}).relevance
-  //   );
-  // });
-  //
-  // it('should work with partial words', function() {
-  //   var match = function(query, expectedMatch, expectedRelevance) {
-  //     var result = doesMatch('Somebody To Love', query, {highlightMatches: true, minWord: 2});
-  //     expect(result.match).to.equal(expectedMatch);
-  //     expect(result.relevance).to.equal(expectedRelevance);
-  //   };
-  //
-  //   match('love some', '<strong>Some</strong>body To <strong>Love</strong>', 16);
-  // });
+  it('should work the same when words are out of order', function() {
+    expect(
+      doesMatch('Somebody To Love', 'somebody love', {highlightMatches: true}).relevance
+    ).to.equal(
+      doesMatch('Somebody To Love', 'love somebody', {highlightMatches: true}).relevance
+    );
+  });
+
+  it('should work with partial words', function() {
+    var match = function(query, expectedMatch, expectedRelevance) {
+      var result = doesMatch('Somebody To Love', query, {highlightMatches: true, minWord: 2});
+      expect(result.match).to.equal(expectedMatch);
+      expect(result.relevance).to.equal(expectedRelevance);
+    };
+
+    match('love some', '<strong>Some</strong>body To <strong>Love</strong>', 16);
+  });
 });
