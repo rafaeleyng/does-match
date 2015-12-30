@@ -5998,7 +5998,7 @@
 
 	    this.selectedSong = ko.observable();
 	    // search
-	    this.search = ko.observable('all the ');
+	    this.search = ko.observable('all the');
 	    this.search.subscribe(this.filterSongs.bind(this));
 	    // songs
 	    this.songsData = songService.getSongs();
@@ -6010,6 +6010,8 @@
 	    this.selectSong = function (song) {
 	      _this.selectedSong(song);
 	    };
+
+	    this.code = ko.observable('\n    var matchResult = doesMatch(song.title, search, {\n      highlightMatches: true,\n      highlightStart: \'<strong><u>\',\n      highlightEnd: \'</u></strong>\',\n    });\n    // returns relevance score and title with highlighted parts\n    ');
 	  }
 
 	  _createClass(PlayerViewModel, [{

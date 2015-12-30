@@ -5,7 +5,7 @@ class PlayerViewModel {
   constructor(songService) {
     this.selectedSong = ko.observable();
     // search
-    this.search = ko.observable('all the ');
+    this.search = ko.observable('all the');
     this.search.subscribe(this.filterSongs.bind(this));
     // songs
     this.songsData = songService.getSongs();
@@ -17,6 +17,15 @@ class PlayerViewModel {
     this.selectSong = (song) => {
       this.selectedSong(song);
     }
+
+    this.code = ko.observable(`
+    var matchResult = doesMatch(song.title, search, {
+      highlightMatches: true,
+      highlightStart: '<strong><u>',
+      highlightEnd: '</u></strong>',
+    });
+    // returns relevance score and title with highlighted parts
+    `)
   }
   filterSongs() {
     var search = this.search();
