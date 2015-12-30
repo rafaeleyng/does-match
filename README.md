@@ -1,15 +1,15 @@
 DoesMatch demo
 --------------
 
-
 ```
 npm i
 ```
 
-Assuming webpack and webpack-dev-server are installed globally
-
+Then
 ```
-webpack -w
+npm run dev
 # or
-webpack-dev-server
+npm run build
 ```
+
+according to what you want
