@@ -13,6 +13,7 @@
     "webpack": "1.12.9"
   },
   "dependencies": {
+    "axios": "0.8.1",
     "does-match": "1.0.0",
     "knockout": "3.4.0"
   }

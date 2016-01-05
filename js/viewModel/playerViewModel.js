@@ -4,13 +4,20 @@ var doesMatch = require('does-match');
 class PlayerViewModel {
   constructor(songService) {
     this.selectedSong = ko.observable();
+
     // search
     this.search = ko.observable('all the');
     this.search.subscribe(this.filterSongs.bind(this));
+
     // songs
-    this.songsData = songService.getSongs();
+    this.songsData = [];
     this.songs = ko.observableArray();
-    this.filterSongs();
+    songService.getSongs()
+      .then(({data}) => {
+        ko.utils.arrayPushAll(this.songsData, data);
+        this.filterSongs();
+      })
+    ;
 
     this.showSongs = ko.observable(true);
 
