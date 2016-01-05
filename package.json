@@ -10,11 +10,14 @@
     "babel-core": "6.3.26",
     "babel-loader": "6.2.0",
     "babel-preset-es2015": "6.3.13",
-    "webpack": "1.12.9"
+    "babel-preset-react": "6.3.13",
+    "webpack": "1.12.9",
+    "webpack-dev-server": "1.14.0"
   },
   "dependencies": {
     "axios": "0.8.1",
     "does-match": "1.0.0",
-    "knockout": "3.4.0"
+    "react": "0.14.5",
+    "react-dom": "0.14.5"
   }
 }

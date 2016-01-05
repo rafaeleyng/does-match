@@ -14,7 +14,6 @@
         <h1>DoesMatch demo</h1>
       </div>
     </div>
-
     <div class="row">
       <div class="offset-by-two eight columns">
         <p class="description">DoesMatch is a small lib for matching text searches by relevance.</p>
@@ -24,73 +23,24 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="row">
-      <div class="offset-by-three six columns video" data-bind="with: selectedSong">
-        <iframe width="420" height="315" frameborder="0" allowfullscreen data-bind="attr: {src: 'https://www.youtube.com/embed/' + video + '?autoplay=1'}"></iframe>
-      </div>
-    </div>
+  <div id="app"></div>
 
-    <div class="row">
-      <div class="offset-by-three six columns">
-        <input type="text" data-bind="textInput: search" autofocus class="u-full-width" placeholder="Search song">
-      </div>
-    </div>
-
-    <div class="row" data-bind="visible: showSongs" style="display: none">
-      <div class="offset-by-three six columns">
-        <table class="u-full-width">
-          <!-- ko if: search() -->
-            <thead>
-              <tr>
-                <th class="column-title">Title</th>
-                <th>Relevance</th>
-              </tr>
-            </thead>
-            <!-- ko if: songs().length !== 0 -->
-              <tbody data-bind="foreach: songs">
-                <tr data-bind="click: $root.selectSong">
-                  <td>
-                    <span data-bind="html: matchedText"></span>
-                    <span data-bind="text: author" class="song-author"></span>
-                  </td>
-                  <td data-bind="text: relevance"></td>
-                </tr>
-              </tbody>
-            <!-- /ko -->
-            <!-- ko if: songs().length === 0 -->
-              <tbody>
-                <tr>
-                  <td colspan="2">No results</td>
-                </tr>
-              </tbody>
-            <!-- /ko -->
-          <!-- /ko -->
-          <!-- ko if: !search() -->
-            <thead>
-              <tr>
-                <th class="column-title">Title</th>
-              </tr>
-            </thead>
-            <tbody data-bind="foreach: songs">
-              <tr data-bind="click: $root.selectSong">
-                <td>
-                  <span data-bind="text: title"></span>
-                  <span data-bind="text: author" class="song-author"></span>
-                </td>
-              </tr>
-            </tbody>
-          <!-- /ko -->
-        </table>
-      </div>
-    </div>
-
-    <hr>
+  <hr>
+  <div class="container">
     <div class="row">
       <div class="offset-by-two eight columns">
         <p class="description">This is the call to <code>doesMatch</code> used in this demo:</p>
         <pre>
-          <code data-bind="text: code"></code>
+          <code>
+            let matchResult = doesMatch(song.title, search, {
+              highlightMatches: true,
+              highlightStart: '&lt;strong&gt;&lt;u&gt;',
+              highlightEnd: '&lt;/u&gt;&lt;/strong&gt;',
+            });
+            // returns relevance score and title with highlighted parts
+          </code>
         </pre>
       </div>
     </div>
