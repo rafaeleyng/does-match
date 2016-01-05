@@ -54,4 +54,17 @@ describe('words match', function() {
     match('text original the is this', '<strong>This is the Original Text</strong>');
     match('text text the original this is', '<strong>This is the Original Text</strong>');
   });
+
+  it('should work', function() {
+    var match = function(text, query, expectedMatch) {
+      var actualMatch = doesMatch(text, query, {highlightMatches: true, minWord: 2}).match;
+      expect(actualMatch).to.equal(expectedMatch);
+    };
+
+    match(
+      'All These Things That I\'ve Done',
+      'all the ',
+      '<strong>All These Things That I\'ve Done</strong>'
+    );
+  });
 });
