@@ -3,6 +3,8 @@ DoesMatch
 
 [![npm version](https://img.shields.io/npm/v/does-match.svg)](http://npm.im/does-match)
 [![travis build](https://img.shields.io/travis/rafaeleyng/does-match.svg)](https://travis-ci.org/rafaeleyng/does-match)
+[![codecov coverage](https://img.shields.io/codecov/c/github/rafaeleyng/does-match.svg?style=flat-square)](https://codecov.io/github/rafaeleyng/does-match)
+
 [![downloads](https://img.shields.io/npm/dt/does-match.svg)](http://npm-stat.com/charts.html?package=does-match)
 [![MIT License](https://img.shields.io/npm/l/does-match.svg)](http://opensource.org/licenses/MIT)
 [![Dependencies status](https://img.shields.io/david/rafaeleyng/does-match.svg)](https://david-dm.org/rafaeleyng/does-match#info=dependencies)
