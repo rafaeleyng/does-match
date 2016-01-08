@@ -111,3 +111,7 @@ If `false`, the text `Québec` will be matched only by `'québec'`.
 1. *whole match*: will try to find the whole exact query inside the text
 1. *words match*: will try to find as much words from the query as possible inside the text, in any order
 1. *lookahead match*: something like what text editors do when looking for a file, it will try to find all chars from the query, in order. Something like finding "dos mtch" inside "does match"
+
+## License
+
+This software is licensed under the MIT license
