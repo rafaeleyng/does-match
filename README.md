@@ -1,7 +1,12 @@
 DoesMatch
 ---------
 
-[![Build Status](https://travis-ci.org/rafaeleyng/does-match.svg?branch=master)](https://travis-ci.org/rafaeleyng/does-match)
+[![npm version](https://img.shields.io/npm/v/does-match.svg)](https://npm.im/does-match)
+[![travis build](https://img.shields.io/travis/rafaeleyng/does-match.svg)](https://travis-ci.org/rafaeleyng/does-match)
+[![downloads](https://img.shields.io/npm/dt/does-match.svg)](http://npm-stat.com/charts.html?package=does-match)
+[![MIT License](https://img.shields.io/npm/l/does-match.svg)](http://opensource.org/licenses/MIT)
+[![Dependencies status](https://img.shields.io/david/rafaeleyng/does-match.svg)](https://david-dm.org/rafaeleyng/does-match#info=dependencies)
+[![Dev Dependencies status](https://img.shields.io/david/dev/rafaeleyng/does-match.svg)](https://david-dm.org/rafaeleyng/does-match#info=devDependencies)
 
 A small lib for matching text searches by relevance.
 
