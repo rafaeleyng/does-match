@@ -12,6 +12,8 @@ DoesMatch
 
 A small lib for matching text searches by relevance.
 
+![does-match demo](https://cloud.githubusercontent.com/assets/4842605/12216202/7e80165e-b6c1-11e5-8e9f-d031182d0c34.png)
+
 [Live demo](http://rafaeleyng.github.io/does-match/).
 
 ## Installation
