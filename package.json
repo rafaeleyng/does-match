@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "axios": "0.8.1",
-    "does-match": "1.0.0",
+    "does-match": "1.0.1",
     "react": "0.14.5",
     "react-dom": "0.14.5"
   }

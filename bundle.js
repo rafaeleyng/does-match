@@ -16673,15 +16673,21 @@
 	 * @typechecks
 	 */
 
+	/* eslint-disable fb-www/typeof-undefined */
+
 	/**
 	 * Same as document.activeElement but wraps in a try-catch block. In IE it is
 	 * not safe to call document.activeElement if there is nothing focused.
 	 *
-	 * The activeElement will be null only if the document body is not yet defined.
+	 * The activeElement will be null only if the document or document body is not
+	 * yet defined.
 	 */
-	"use strict";
+	'use strict';
 
 	function getActiveElement() /*?DOMElement*/{
+	  if (typeof document === 'undefined') {
+	    return null;
+	  }
 	  try {
 	    return document.activeElement || document.body;
 	  } catch (e) {
@@ -19685,7 +19691,7 @@
 
 	'use strict';
 
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -19725,7 +19731,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var SongBox = (function (_React$Component) {
+	var SongBox = function (_React$Component) {
 	  _inherits(SongBox, _React$Component);
 
 	  function SongBox(props) {
@@ -19857,7 +19863,7 @@
 	  }]);
 
 	  return SongBox;
-	})(_react2.default.Component);
+	}(_react2.default.Component);
 
 	exports.default = SongBox;
 
@@ -21414,8 +21420,12 @@
 	      };
 
 	      var removeUnnecessaryHighlightTokens = function(text, options) {
+	        // remove empty
+	        text = text.replace(new RegExp(options.highlightStart + ' ' + options.highlightEnd, 'g'), ' ');
+	        text = text.replace(new RegExp(options.highlightStart + options.highlightEnd, 'g'), '');
+	        // remove superfluous
 	        text = text.replace(new RegExp(options.highlightEnd + ' ' + options.highlightStart, 'g'), ' ');
-	        text = text.replace(new RegExp(options.highlightEnd + options.highlightStart, 'g'));
+	        text = text.replace(new RegExp(options.highlightEnd + options.highlightStart, 'g'), '');
 	        return text;
 	      };
 
@@ -21492,7 +21502,9 @@
 	              adjacentChars++;
 	              relevance += MULTIPLIERS.MATCH_WORD;
 	            } else {
-	              if (!isFirstIteration) {
+	              if (isFirstIteration) {
+	                ranges.push(new Range(start, start + adjacentChars));
+	              } else {
 	                ranges.push(new Range(start, start + adjacentChars + 1));
 	              }
 	              isFirstIteration = false;
