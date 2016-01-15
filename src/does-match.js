@@ -133,8 +133,12 @@
       };
 
       var removeUnnecessaryHighlightTokens = function(text, options) {
+        // remove empty
+        text = text.replace(new RegExp(options.highlightStart + ' ' + options.highlightEnd, 'g'), ' ');
+        text = text.replace(new RegExp(options.highlightStart + options.highlightEnd, 'g'), '');
+        // remove superfluous
         text = text.replace(new RegExp(options.highlightEnd + ' ' + options.highlightStart, 'g'), ' ');
-        text = text.replace(new RegExp(options.highlightEnd + options.highlightStart, 'g'));
+        text = text.replace(new RegExp(options.highlightEnd + options.highlightStart, 'g'), '');
         return text;
       };
 
@@ -211,7 +215,9 @@
               adjacentChars++;
               relevance += MULTIPLIERS.MATCH_WORD;
             } else {
-              if (!isFirstIteration) {
+              if (isFirstIteration) {
+                ranges.push(new Range(start, start + adjacentChars));
+              } else {
                 ranges.push(new Range(start, start + adjacentChars + 1));
               }
               isFirstIteration = false;
