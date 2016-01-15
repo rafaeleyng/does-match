@@ -234,7 +234,9 @@
           ranges = [];
           relevance = 0;
         }
-        ranges.push(new Range(start, start + adjacentChars + 1));
+        if (relevance !== 0) {
+          ranges.push(new Range(start, start + adjacentChars + 1));
+        }
 
         return matchResult(originalText, relevance, ranges, options);
       }

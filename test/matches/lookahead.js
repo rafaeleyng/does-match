@@ -57,4 +57,17 @@ describe('lookahead match', function() {
       '<strong>All The</strong>se Things That I\'ve Done'
     );
   });
+
+  it('should not highlight when doesn\'t match', function() {
+    var match = function(text, query, expectedRelevance, expectedMatch) {
+      var result = doesMatch(text, query, {highlightMatches: true, minWord: 2});
+      expect(result.relevance).to.equal(0);
+      expect(result.match).to.equal(text);
+    };
+
+    match('anything', 'don\'t match');
+    match('other', 'don\'t match');
+    match('aaa', 'bbb');
+    match('bbb', 'c');
+  });
 });
