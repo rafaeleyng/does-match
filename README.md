@@ -12,7 +12,7 @@ DoesMatch
 
 A small lib for matching text searches by relevance.
 
-![does-match demo](https://cloud.githubusercontent.com/assets/4842605/12216202/7e80165e-b6c1-11e5-8e9f-d031182d0c34.png)
+![does-match demo](https://cloud.githubusercontent.com/assets/4842605/12354567/0e660dbc-bb7e-11e5-80e9-8f654a82fe7c.png)
 
 [Live demo](http://rafaeleyng.github.io/does-match/).
 
