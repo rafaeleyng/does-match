@@ -42,4 +42,19 @@ describe('lookahead match', function() {
 
     match('curous ca benj ton', 'The <strong>Cur</strong>i<strong>ous Ca</strong>se of <strong>Benj</strong>amin Bu<strong>t</strong>t<strong>on</strong>');
   });
+
+  it('should work', function() {
+    var match = function(text, query, expectedRelevance, expectedMatch) {
+      var result = doesMatch(text, query, {highlightMatches: true, minWord: 2});
+      expect(result.relevance).to.equal(expectedRelevance);
+      expect(result.match).to.equal(expectedMatch);
+    };
+
+    match(
+      'All These Things That I\'ve Done',
+      'all the ', // with space, so it won't fall under wholeMatch!
+      11,
+      '<strong>All The</strong>se Things That I\'ve Done'
+    );
+  });
 });
