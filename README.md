@@ -1,4 +1,4 @@
-DoesMatch
+DoesMatch!
 ---------
 
 [![npm version](https://img.shields.io/npm/v/does-match.svg)](http://npm.im/does-match)
